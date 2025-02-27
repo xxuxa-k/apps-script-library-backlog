@@ -1,19 +1,15 @@
 const PROPERTY_KEY_API_KEY = "BACKLOG_API_KEY"
 const PRPERTY_KEY_ORG_DOMAIN = "BACKLOG_ORG_DOMAIN"
 
-function checkCredential_() {
+function request_(option: RequestOptions) {
+  if (!["get", "post"].includes(option.method)) {
+    throw new Error(`${option.method} is not allowed`);
+  }
   const up = PropertiesService.getUserProperties()
   const keys = up.getKeys()
   if (!keys.includes(PROPERTY_KEY_API_KEY) || !keys.includes(PRPERTY_KEY_ORG_DOMAIN)) {
     throw new Error("APIトークンまたは組織のドメインが設定されていません。")
   }
-}
-
-function request_(option: RequestOptions) {
-  if (!["get", "post"].includes(option.method)) {
-    throw new Error(`${option.method} is not allowed`);
-  }
-  checkCredential_()
 
   const _: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     method: option.method,
