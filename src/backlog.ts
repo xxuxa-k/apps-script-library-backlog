@@ -232,3 +232,27 @@ function getProjectStatus(projectIdOrKey: string = ""): Status[] {
   const json: Status[] = JSON.parse(res.getContentText());
   return json
 }
+
+/**
+  * 添付ファイルの送信
+  * https://developer.nulab.com/ja/docs/backlog/api/2/post-attachment-file/
+  * @param {GoogleAppsScript.Base.Blob} file Blob形式
+  * @param {string} filename ファイル名
+  *
+  */
+function postAttachment(file: GoogleAppsScript.Base.Blob, filename: string) {
+  const res = request_({
+    method: "post",
+    url: buildRequestUrl_(`/space/attachment`, {}),
+    payload: {
+      file: file,
+      filename: filename,
+    },
+  })
+  if (res.getResponseCode() !== 200) {
+    throw new Error(`Failed to post attachment: ${res.getContentText()}`);
+  }
+  const json: PostAttachmentResponse = JSON.parse(res.getContentText());
+  return json
+}
+

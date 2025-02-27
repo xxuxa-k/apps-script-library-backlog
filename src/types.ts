@@ -1,8 +1,16 @@
 type QueryParams = Record<string, string | number | number[]>
 
-type RequestOptions = 
-| { method: "get", url: string }
-| { method: "post", url: string, payload: Record<string, string | number | number[]> }
+
+type RequestOptionGet = {
+  method: "get",
+  url: string,
+}
+type RequestOptionPost = {
+  method: "post",
+  url: string,
+  payload: Record<string, string | number | number[] | GoogleAppsScript.Base.Blob>,
+}
+type RequestOptions = RequestOptionGet | RequestOptionPost
 
 type SpaceInfo = {
   spaceKey: string,
@@ -50,6 +58,10 @@ type AddCommentParams = {
   "attachmentId[]": number[],
 }
 
+type LinkSharedFileParams = {
+  "fileId[]": number[],
+}
+
 type AddCommentResponse = {
   id: number,
   projectId: number,
@@ -57,6 +69,12 @@ type AddCommentResponse = {
   content: string,
   created: string,
   updated: string,
+}
+
+type PostAttachmentResponse = {
+  id: number,
+  name: string,
+  size: number,
 }
 
 type ProjectCategory = {
