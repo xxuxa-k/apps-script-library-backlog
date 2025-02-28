@@ -1,5 +1,7 @@
-const PROPERTY_KEY_API_KEY = "BACKLOG_API_KEY"
-const PRPERTY_KEY_ORG_DOMAIN = "BACKLOG_ORG_DOMAIN"
+const PROPERTY_KEYS: Record<string, string> = {
+  "API_KEY": "BACKLOG_API_KEY",
+  "ORG_DOMAIN": "BACKLOG_ORG_DOMAIN",
+}
 
 function request_(option: RequestOptions) {
   if (!["get", "post"].includes(option.method)) {
@@ -7,7 +9,7 @@ function request_(option: RequestOptions) {
   }
   const up = PropertiesService.getUserProperties()
   const keys = up.getKeys()
-  if (!keys.includes(PROPERTY_KEY_API_KEY) || !keys.includes(PRPERTY_KEY_ORG_DOMAIN)) {
+  if (!keys.includes(PROPERTY_KEYS.API_KEY) || !keys.includes(PROPERTY_KEYS.ORG_DOMAIN)) {
     throw new Error("APIトークンまたは組織のドメインが設定されていません。")
   }
 
@@ -23,8 +25,8 @@ function request_(option: RequestOptions) {
 
 function buildRequestUrl_(path: string, params: QueryParams): string {
   const up = PropertiesService.getUserProperties()
-  const apiKey = up.getProperty(PROPERTY_KEY_API_KEY) ?? ""
-  const orgDomain = up.getProperty(PRPERTY_KEY_ORG_DOMAIN) ?? ""
+  const apiKey = up.getProperty(PROPERTY_KEYS.API_KEY) ?? ""
+  const orgDomain = up.getProperty(PROPERTY_KEYS.ORG_DOMAIN) ?? ""
   const queryParams: string[] = [
     `${encodeURIComponent("apiKey")}=${encodeURIComponent(apiKey)}`
   ]
@@ -48,8 +50,8 @@ function buildRequestUrl_(path: string, params: QueryParams): string {
   */
 function setCredential(apiToken: string, orgDomain: string) {
   const up = PropertiesService.getUserProperties()
-  up.setProperty(PROPERTY_KEY_API_KEY, apiToken)
-  up.setProperty(PRPERTY_KEY_ORG_DOMAIN, orgDomain)
+  up.setProperty(PROPERTY_KEYS.API_KEY, apiToken)
+  up.setProperty(PROPERTY_KEYS.ORG_DOMAIN, orgDomain)
 }
 
 
