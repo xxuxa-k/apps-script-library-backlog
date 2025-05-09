@@ -20,7 +20,7 @@ const PROPERTY_KEYS: Record<string, string> = {
   "ORG_DOMAIN": "BACKLOG_ORG_DOMAIN",
 }
 
-function request_(option: RequestOptions) {
+function request_(option: RequestOptions): GoogleAppsScript.URL_Fetch.HTTPResponse {
   if (!["get", "post"].includes(option.method)) {
     throw new Error(`${option.method} is not allowed`);
   }
