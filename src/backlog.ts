@@ -1,3 +1,20 @@
+import {
+  AddCommentParams,
+  AddCommentResponse,
+  AddIssueParams,
+  Issue,
+  PostAttachmentResponse,
+  Priority,
+  ProjectCategory,
+  ProjectInfo,
+  QueryParams,
+  SpaceInfo,
+  RequestOptions,
+  Status,
+  IssueType,
+} from "./types"
+
+
 const PROPERTY_KEYS: Record<string, string> = {
   "API_KEY": "BACKLOG_API_KEY",
   "ORG_DOMAIN": "BACKLOG_ORG_DOMAIN",
@@ -19,6 +36,9 @@ function request_(option: RequestOptions) {
   }
   if (option.method === "post") {
     _.payload = option.payload
+    if (option.headers) {
+      _.headers = option.headers
+    }
   }
   return UrlFetchApp.fetch(option.url, _)
 }
@@ -106,6 +126,24 @@ function getIssues(projectIds: number[] = []): Issue[] {
   return json
 }
 
+/**
+* 1件の課題の詳細を取得する
+* https://developer.nulab.com/ja/docs/backlog/api/2/get-issue/
+* @param {string} projectIdOrKey プロジェクトIDまたはキー
+*
+* */
+function getIssue(projectIdOrKey: string = ""): Issue {
+  const res = request_({
+    method: "get",
+    url: buildRequestUrl_(`/issues/${projectIdOrKey}`, {}),
+  })
+  if (res.getResponseCode() !== 200) {
+    throw new Error(`Failed to get issue: ${res.getContentText()}`);
+  }
+  const json: Issue = JSON.parse(res.getContentText());
+  return json
+}
+
 
 /**
    * 単一のプロジェクト情報を取得する
@@ -171,9 +209,9 @@ function getProjectIssueTypes(projectIdOrKey: string = ""): IssueType[] {
    * 課題を追加する
    * https://developer.nulab.com/ja/docs/backlog/api/2/add-issue/
    * @param {string} summary 課題の本文
-   * @param {object} params その他のリクエストパラメータ
+   * @param {Object} params その他のリクエストパラメータ
    */
-function addIssue(summary: string = "", params: AddIssueParams): void {
+function addIssue(summary: string = "", params: AddIssueParams) {
   const res = request_({
     method: "post",
     url: buildRequestUrl_("/issues", params),
@@ -184,6 +222,9 @@ function addIssue(summary: string = "", params: AddIssueParams): void {
   if (res.getResponseCode() !== 201) {
     throw new Error(`Failed to add issue: ${res.getContentText()}`);
   }
+  // TODO: add issue type definition
+  const json = JSON.parse(res.getContentText());
+  return json
 }
 
 /**
@@ -234,23 +275,34 @@ function getProjectStatus(projectIdOrKey: string = ""): Status[] {
 /**
   * 添付ファイルの送信
   * https://developer.nulab.com/ja/docs/backlog/api/2/post-attachment-file/
-  * @param {GoogleAppsScript.Base.Blob} file Blob形式
-  * @param {string} filename ファイル名
+  * @param {GoogleAppsScript.Drive.File} file DriveApp.File形式
   *
   */
-function postAttachment(file: GoogleAppsScript.Base.Blob, filename: string) {
+function postAttachment(file: GoogleAppsScript.Drive.File): PostAttachmentResponse {
+  const boundary = Utilities.getUuid()
+  const lineBreak = "\r\n"
+  const safeFileName = file.getName().replace(/[\\"\r\n]/g, c => `\\${c}`)
+
+  const multipartBody = `--${boundary}${lineBreak}`
+    + `Content-Disposition: form-data; name="file"; filename="${safeFileName}"${lineBreak}`
+    + `Content-Type: ${file.getBlob().getContentType()}${lineBreak}${lineBreak}`
+
+  const payload = Utilities.newBlob(multipartBody).getBytes()
+  .concat(file.getBlob().getBytes())
+  .concat(Utilities.newBlob(`${lineBreak}--${boundary}--`).getBytes())
+
   const res = request_({
     method: "post",
     url: buildRequestUrl_(`/space/attachment`, {}),
-    payload: {
-      file: file,
-      filename: filename,
+    headers: {
+      "Content-Type": `multipart/form-data; boundary=${boundary}`,
     },
+    payload: payload,
   })
   if (res.getResponseCode() !== 200) {
-    throw new Error(`Failed to post attachment: ${res.getContentText()}`);
+    throw new Error(`Failed to post attachment: ${res.getContentText()}`)
   }
-  const json: PostAttachmentResponse = JSON.parse(res.getContentText());
+  const json: PostAttachmentResponse = JSON.parse(res.getContentText())
   return json
 }
 

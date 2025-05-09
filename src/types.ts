@@ -1,18 +1,18 @@
-type QueryParams = Record<string, string | number | number[]>
+export type QueryParams = Record<string, string | number | number[]>
 
-
-type RequestOptionGet = {
+export type RequestOptionGet = {
   method: "get",
   url: string,
 }
-type RequestOptionPost = {
+export type RequestOptionPost = {
   method: "post",
   url: string,
-  payload: Record<string, string | number | number[] | GoogleAppsScript.Base.Blob>,
+  headers?: Record<string, string>,
+  payload: Record<string, string | number | number[] | GoogleAppsScript.Base.Blob> | string | number[],
 }
-type RequestOptions = RequestOptionGet | RequestOptionPost
+export type RequestOptions = RequestOptionGet | RequestOptionPost
 
-type SpaceInfo = {
+export type SpaceInfo = {
   spaceKey: string,
   name: string,
   ownerId: number,
@@ -24,7 +24,7 @@ type SpaceInfo = {
   updated: string,
 }
 
-type ProjectInfo = {
+export type ProjectInfo = {
   id: number,
   projectKey: string,
   name: string,
@@ -43,7 +43,7 @@ type ProjectInfo = {
   useDevAttributes: boolean,
 }
 
-type AddIssueParams = {
+export type AddIssueParams = {
   projectId: number,
   issueTypeId: number,
   priorityId: number,
@@ -53,16 +53,16 @@ type AddIssueParams = {
   dueDate?: string,
 }
 
-type AddCommentParams = {
+export type AddCommentParams = {
   "notifiedUserId[]": number[],
   "attachmentId[]": number[],
 }
 
-type LinkSharedFileParams = {
+export type LinkSharedFileParams = {
   "fileId[]": number[],
 }
 
-type AddCommentResponse = {
+export type AddCommentResponse = {
   id: number,
   projectId: number,
   issueId: number,
@@ -71,20 +71,20 @@ type AddCommentResponse = {
   updated: string,
 }
 
-type PostAttachmentResponse = {
+export type PostAttachmentResponse = {
   id: number,
   name: string,
   size: number,
 }
 
-type ProjectCategory = {
+export type ProjectCategory = {
   id: number,
   projectId: number,
   name: string,
   displayOrder: number,
 }
 
-type IssueType = {
+export type IssueType = {
   id: number,
   projectId: number,
   name: string,
@@ -94,12 +94,12 @@ type IssueType = {
   tempalteDescription: string,
 }
 
-type Priority = {
+export type Priority = {
   id: number,
   name: string,
 }
 
-type Issue = {
+export type Issue = {
   id: number,
   projectId: number,
   issueKey: string,
@@ -111,7 +111,7 @@ type Issue = {
   status: Status,
 }
 
-type Status = {
+export type Status = {
   id: number,
   projectId: number,
   name: string,

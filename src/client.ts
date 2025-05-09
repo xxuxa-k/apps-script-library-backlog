@@ -1,3 +1,19 @@
+import {
+  AddCommentParams,
+  AddCommentResponse,
+  AddIssueParams,
+  Issue,
+  IssueType,
+  Status,
+  Priority,
+  ProjectCategory,
+  ProjectInfo,
+  QueryParams,
+  RequestOptions,
+  SpaceInfo,
+} from "./types";
+
+
 /**
   * @param {string} apiKey API key
   * @param {string} orgName Organization name
