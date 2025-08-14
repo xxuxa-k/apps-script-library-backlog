@@ -8,7 +8,10 @@ export type RequestOptionPost = {
   method: "post",
   url: string,
   headers?: Record<string, string>,
-  payload: Record<string, string | number | number[] | GoogleAppsScript.Base.Blob> | string | number[],
+  payload: Record<
+    string,
+    string | string[] | number | number[] | GoogleAppsScript.Base.Blob
+  > | string | number[],
 }
 export type RequestOptions = RequestOptionGet | RequestOptionPost
 
@@ -72,6 +75,12 @@ export type AddCommentResponse = {
 }
 
 export type PostAttachmentResponse = {
+  id: number,
+  name: string,
+  size: number,
+}
+
+export type LinkSharedFileToIssueResponse = {
   id: number,
   name: string,
   size: number,

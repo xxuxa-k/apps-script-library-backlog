@@ -12,8 +12,8 @@ import {
   RequestOptions,
   Status,
   IssueType,
+  LinkSharedFileToIssueResponse,
 } from "./types"
-
 
 const PROPERTY_KEYS: Record<string, string> = {
   "API_KEY": "BACKLOG_API_KEY",
@@ -68,7 +68,7 @@ function buildRequestUrl_(path: string, params: QueryParams): string {
   * @param {string} apiToken APIトークン
   * @param {string} orgDomain Backlog組織のドメイン(xx.backlog.com / xx.backlog.jp)
   */
-function setCredential(apiToken: string, orgDomain: string) {
+export function setCredential(apiToken: string, orgDomain: string) {
   const up = PropertiesService.getUserProperties()
   up.setProperty(PROPERTY_KEYS.API_KEY, apiToken)
   up.setProperty(PROPERTY_KEYS.ORG_DOMAIN, orgDomain)
@@ -79,7 +79,7 @@ function setCredential(apiToken: string, orgDomain: string) {
    * スペース情報を取得する
    * https://developer.nulab.com/ja/docs/backlog/api/2/get-space/
    */
-function getSpace(): SpaceInfo {
+export function getSpace(): SpaceInfo {
   const res = request_({
     method: "get",
     url: buildRequestUrl_("/space", {}),
@@ -95,7 +95,7 @@ function getSpace(): SpaceInfo {
    * 優先度一覧を取得する
    * https://developer.nulab.com/ja/docs/backlog/api/2/get-priority-list/
    */
-function getPriorities(): Priority[] {
+export function getPriorities(): Priority[] {
   const res = request_({
     method: "get",
     url: buildRequestUrl_("/priorities", {}),
@@ -112,7 +112,7 @@ function getPriorities(): Priority[] {
    * https://developer.nulab.com/ja/docs/backlog/api/2/get-issue/
    * @param {number[]} projectIds プロジェクトIDの配列
    */
-function getIssues(projectIds: number[] = []): Issue[] {
+export function getIssues(projectIds: number[] = []): Issue[] {
   const res = request_({
     method: "get",
     url: buildRequestUrl_("/issues", {
@@ -132,7 +132,7 @@ function getIssues(projectIds: number[] = []): Issue[] {
 * @param {string} projectIdOrKey プロジェクトIDまたはキー
 *
 * */
-function getIssue(projectIdOrKey: string = ""): Issue {
+export function getIssue(projectIdOrKey: string = ""): Issue {
   const res = request_({
     method: "get",
     url: buildRequestUrl_(`/issues/${projectIdOrKey}`, {}),
@@ -150,7 +150,7 @@ function getIssue(projectIdOrKey: string = ""): Issue {
    * https://developer.nulab.com/ja/docs/backlog/api/2/get-project/
    * @param {string} projectIdOrKey プロジェクトIDまたはキー
    */
-function getProject(projectIdOrKey: string = ""): ProjectInfo {
+export function getProject(projectIdOrKey: string = ""): ProjectInfo {
   if (!projectIdOrKey) {
     throw new Error("projectIdOrKey is required");
   }
@@ -170,7 +170,7 @@ function getProject(projectIdOrKey: string = ""): ProjectInfo {
    * https://developer.nulab.com/ja/docs/backlog/api/2/get-category-list/
    * @param {string} projectIdOrKey プロジェクトIDまたはキー
    */
-function getProjectCategories(projectIdOrKey: string = ""): ProjectCategory[] {
+export function getProjectCategories(projectIdOrKey: string = ""): ProjectCategory[] {
   if (!projectIdOrKey) {
     throw new Error("projectIdOrKey is required");
   }
@@ -190,7 +190,7 @@ function getProjectCategories(projectIdOrKey: string = ""): ProjectCategory[] {
    * https://developer.nulab.com/ja/docs/backlog/api/2/get-issue-type-list/
    * @param {string} projectIdOrKey プロジェクトIDまたはキー
    */
-function getProjectIssueTypes(projectIdOrKey: string = ""): IssueType[] {
+export function getProjectIssueTypes(projectIdOrKey: string = ""): IssueType[] {
   if (!projectIdOrKey) {
     throw new Error("projectIdOrKey is required");
   }
@@ -211,7 +211,7 @@ function getProjectIssueTypes(projectIdOrKey: string = ""): IssueType[] {
    * @param {string} summary 課題の本文
    * @param {Object} params その他のリクエストパラメータ
    */
-function addIssue(summary: string = "", params: AddIssueParams) {
+export function addIssue(summary: string = "", params: AddIssueParams) {
   const res = request_({
     method: "post",
     url: buildRequestUrl_("/issues", params),
@@ -234,7 +234,7 @@ function addIssue(summary: string = "", params: AddIssueParams) {
    * @param {string} content コメントの本文
    * @param {object} params その他のリクエストパラメータ
    */
-function addComment(issueIdOrKey: string = "", content: string = "", params: AddCommentParams): AddCommentResponse {
+export function addComment(issueIdOrKey: string = "", content: string = "", params: AddCommentParams): AddCommentResponse {
   if (!issueIdOrKey) {
     throw new Error("issueIdOrKey is required");
   }
@@ -257,7 +257,7 @@ function addComment(issueIdOrKey: string = "", content: string = "", params: Add
    * https://developer.nulab.com/ja/docs/backlog/api/2/get-status-list-of-project/
    * @param {string} projectIdOrKey プロジェクトIDまたはキー
    */
-function getProjectStatus(projectIdOrKey: string = ""): Status[] {
+export function getProjectStatus(projectIdOrKey: string = ""): Status[] {
   if (!projectIdOrKey) {
     throw new Error("projectIdOrKey is required");
   }
@@ -278,7 +278,7 @@ function getProjectStatus(projectIdOrKey: string = ""): Status[] {
   * @param {GoogleAppsScript.Drive.File} file DriveApp.File形式
   *
   */
-function postAttachment(file: GoogleAppsScript.Drive.File): PostAttachmentResponse {
+export function postAttachment(file: GoogleAppsScript.Drive.File): PostAttachmentResponse {
   const boundary = Utilities.getUuid()
   const lineBreak = "\r\n"
   const safeFileName = file.getName().replace(/[\\"\r\n]/g, c => `\\${c}`)
@@ -303,6 +303,28 @@ function postAttachment(file: GoogleAppsScript.Drive.File): PostAttachmentRespon
     throw new Error(`Failed to post attachment: ${res.getContentText()}`)
   }
   const json: PostAttachmentResponse = JSON.parse(res.getContentText())
+  return json
+}
+
+
+/**
+ * 課題にファイルをリンクする
+ * https://developer.nulab.com/ja/docs/backlog/api/2/link-shared-files-to-issue/
+* @param {string} issueIdOrKey 課題IDまたはキー
+ * @param [fileId=[]] 共有ファイルのID
+ */
+export function linkSharedFileToIssue(issueIdOrKey: string = "", fileId: string[] = []) {
+  const res = request_({
+    method: "post",
+    url: buildRequestUrl_(`/issues/${issueIdOrKey}/sharedFiles`, {}),
+    payload: {
+      fileId,
+    },
+  })
+  if (res.getResponseCode() !== 200) {
+    throw new Error(`Failed to post attachment: ${res.getContentText()}`)
+  }
+  const json: LinkSharedFileToIssueResponse = JSON.parse(res.getContentText())
   return json
 }
 
